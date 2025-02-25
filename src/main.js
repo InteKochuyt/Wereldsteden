@@ -5,8 +5,8 @@ import { Navigation, Pagination } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
+import { apiKey } from "./secret.js";
 
-const apiKey = '966944cbef52647b1d87fecbe3059444';
 
 // Steden met hun coördinaten
 const cities = [
