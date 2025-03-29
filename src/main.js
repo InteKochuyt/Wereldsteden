@@ -16,7 +16,7 @@ const cities = [
   { name: 'Tokyo', lat: 35.689487, lon: 139.691711 },
 ];
 
-async function getWeather(lat, lon, slideElement) {
+async function getWeather(lat, lon, slideElement, cityName) {
   const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${apiKey}`;
 
   try {
@@ -29,9 +29,53 @@ async function getWeather(lat, lon, slideElement) {
     const tempElement = slideElement.querySelector('.temp');
 
     tempElement.innerHTML = `${adjustedTemp}°C`; // Display increased temperature
+
+    // Add temperature to the 3D globe marker
+    addTemperatureToMarker(cityName, adjustedTemp);
   } catch (error) {
     console.log('Error fetching weather data:', error);
   }
+}
+
+function addTemperatureToMarker(cityName, adjustedTemp) {
+  const city = cities.find((c) => c.name === cityName);
+  const { lat, lon } = city;
+
+  // Convert latitude and longitude to radians
+  const latRad = lat * (Math.PI / 180);
+  const lonRad = lon * (Math.PI / 180);
+
+  // Radius of the globe
+  const radius = 2;
+
+  // Calculate position for the temperature label
+  const x = radius * Math.cos(latRad) * Math.sin(lonRad);
+  const y = radius * Math.sin(latRad);
+  const z = -radius * Math.cos(latRad) * Math.cos(lonRad);
+
+  // Create a canvas texture for the temperature
+  const canvas = document.createElement('canvas');
+  const size = 256;
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, size, size);
+  ctx.font = '30px Arial';
+  ctx.fillStyle = 'white';
+  ctx.textAlign = 'center';
+
+  // Display temperature text
+  ctx.fillText(`${adjustedTemp}°C`, size / 2, size / 2);
+
+  const texture = new THREE.CanvasTexture(canvas);
+  const spriteMaterial = new THREE.SpriteMaterial({
+    map: texture,
+    transparent: true,
+  });
+  const sprite = new THREE.Sprite(spriteMaterial);
+
+  sprite.position.set(x, y + 0.5, z); // Position temperature label near the city marker
+  globe.add(sprite);
 }
 
 // Fetch weather for each city
@@ -41,8 +85,8 @@ document.addEventListener('DOMContentLoaded', () => {
   slides.forEach((slide, index) => {
     const city = cities[index];
 
-    // Load temperature
-    getWeather(city.lat, city.lon, slide);
+    // Load temperature and position on globe
+    getWeather(city.lat, city.lon, slide, city.name);
   });
 });
 
@@ -85,7 +129,6 @@ cities.forEach((city) => {
 
   // Convert to radians with Europe-centered map adjustment
   const latRad = lat * (Math.PI / 180);
-  // No longitude shift needed as Europe is already centered
   const lonRad = lon * (Math.PI / 180);
 
   // Radius of globe is 2
