@@ -123,30 +123,32 @@ scene.add(globe);
 camera.position.z = 5;
 
 // Add markers
-const markerMaterial = new THREE.MeshBasicMaterial({ color: 0x00008b });
+new THREE.MeshBasicMaterial({ color: 0x00008b });
+// Corrected Marker Positioning
 cities.forEach((city) => {
   const { lat, lon, name } = city;
 
-  // Convert to radians with Europe-centered map adjustment
-  const latRad = lat * (Math.PI / 180);
-  const lonRad = lon * (Math.PI / 180);
+  // Convert latitude and longitude to radians
+  const latRad = THREE.MathUtils.degToRad(lat);
+  const lonRad = THREE.MathUtils.degToRad(-lon); // Negative to correct map orientation
 
-  // Radius of globe is 2
-  const radius = 2;
+  const radius = 2; // Globe radius
 
-  // Calculate 3D position (z-axis points to front where Europe is centered)
-  const x = radius * Math.cos(latRad) * Math.sin(lonRad);
+  // Correct spherical to Cartesian conversion
+  const x = radius * Math.cos(latRad) * Math.cos(lonRad);
   const y = radius * Math.sin(latRad);
-  const z = -radius * Math.cos(latRad) * Math.cos(lonRad);
+  const z = radius * Math.cos(latRad) * Math.sin(lonRad);
 
+  // Marker
   const markerGeometry = new THREE.SphereGeometry(0.05, 16, 16);
+  const markerMaterial = new THREE.MeshBasicMaterial({ color: 0x00008b });
   const marker = new THREE.Mesh(markerGeometry, markerMaterial);
   marker.position.set(x, y, z);
   globe.add(marker);
 
-  // Create city label using CanvasTexture instead of DOM elements
+  // City label
   const canvas = document.createElement('canvas');
-  const size = 256; // canvas size can be adjusted
+  const size = 256;
   canvas.width = size;
   canvas.height = size;
   const ctx = canvas.getContext('2d');
@@ -154,7 +156,6 @@ cities.forEach((city) => {
   ctx.font = '50px Arial';
   ctx.fillStyle = 'white';
   ctx.textAlign = 'center';
-
   ctx.fillText(name, size / 2, size / 2);
 
   const texture = new THREE.CanvasTexture(canvas);
@@ -163,7 +164,8 @@ cities.forEach((city) => {
     transparent: true,
   });
   const sprite = new THREE.Sprite(spriteMaterial);
-  sprite.position.set(x, y + 0.3, z); // moved label further up
+  sprite.scale.set(0.5, 0.5, 0.5);
+  sprite.position.set(x, y + 0.2, z);
   globe.add(sprite);
 });
 
