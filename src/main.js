@@ -54,7 +54,7 @@ function addTemperatureToMarker(cityName, temp) {
   const y = radius * Math.sin(latRad);
   const z = radius * Math.cos(latRad) * Math.sin(lonRad);
 
-  // Create label canvas
+  // Create label canvas for the temperature
   const canvas = document.createElement('canvas');
   const size = 256;
   canvas.width = size;
@@ -75,7 +75,12 @@ function addTemperatureToMarker(cityName, temp) {
 
   const sprite = new THREE.Sprite(spriteMaterial);
   sprite.scale.set(0.6, 0.6, 0.6);
-  sprite.position.set(x, y + 0.3, z);
+
+  // For cities in the southern hemisphere, set the temperature label underneath the city name.
+  // Adjust the y-offset: use a negative offset for the south, keeping a positive offset for the north.
+  const tempYOffset = lat < 0 ? -0.4 : 0.3;
+  sprite.position.set(x, y + tempYOffset, z);
+
   globe.add(sprite);
 }
 
@@ -166,7 +171,10 @@ cities.forEach((city) => {
   });
   const sprite = new THREE.Sprite(spriteMaterial);
   sprite.scale.set(0.5, 0.5, 0.5);
-  sprite.position.set(x, y + 0.2, z);
+
+  // Use a conditional offset: if the city's latitude is below 0, subtract the offset to place the label underneath.
+  const labelYOffset = lat < 0 ? -0.2 : 0.2;
+  sprite.position.set(x, y + labelYOffset, z);
   globe.add(sprite);
 });
 
