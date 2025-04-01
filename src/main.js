@@ -37,44 +37,45 @@ async function getWeather(lat, lon, slideElement, cityName) {
   }
 }
 
-function addTemperatureToMarker(cityName, adjustedTemp) {
-  const city = cities.find((c) => c.name === cityName);
+function addTemperatureToMarker(cityName, temp) {
+  const city = cities.find((city) => city.name === cityName);
+  if (!city) return;
+
   const { lat, lon } = city;
 
   // Convert latitude and longitude to radians
-  const latRad = lat * (Math.PI / 180);
-  const lonRad = lon * (Math.PI / 180);
+  const latRad = THREE.MathUtils.degToRad(lat);
+  const lonRad = THREE.MathUtils.degToRad(-lon);
 
-  // Radius of the globe
-  const radius = 2;
+  const radius = 2; // Globe radius
 
-  // Calculate position for the temperature label
-  const x = radius * Math.cos(latRad) * Math.sin(lonRad);
+  // Convert spherical coordinates to Cartesian
+  const x = radius * Math.cos(latRad) * Math.cos(lonRad);
   const y = radius * Math.sin(latRad);
-  const z = -radius * Math.cos(latRad) * Math.cos(lonRad);
+  const z = radius * Math.cos(latRad) * Math.sin(lonRad);
 
-  // Create a canvas texture for the temperature
+  // Create label canvas
   const canvas = document.createElement('canvas');
   const size = 256;
   canvas.width = size;
   canvas.height = size;
   const ctx = canvas.getContext('2d');
+
   ctx.clearRect(0, 0, size, size);
-  ctx.font = '30px Arial';
+  ctx.font = '40px Arial';
   ctx.fillStyle = 'white';
   ctx.textAlign = 'center';
-
-  // Display temperature text
-  ctx.fillText(`${adjustedTemp}°C`, size / 2, size / 2);
+  ctx.fillText(`${temp}°C`, size / 2, size / 2);
 
   const texture = new THREE.CanvasTexture(canvas);
   const spriteMaterial = new THREE.SpriteMaterial({
     map: texture,
     transparent: true,
   });
-  const sprite = new THREE.Sprite(spriteMaterial);
 
-  sprite.position.set(x, y + 0.5, z); // Position temperature label near the city marker
+  const sprite = new THREE.Sprite(spriteMaterial);
+  sprite.scale.set(0.6, 0.6, 0.6);
+  sprite.position.set(x, y + 0.3, z);
   globe.add(sprite);
 }
 
