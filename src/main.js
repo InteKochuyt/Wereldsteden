@@ -62,7 +62,7 @@ function addTemperatureToMarker(cityName, temp) {
   const ctx = canvas.getContext('2d');
 
   ctx.clearRect(0, 0, size, size);
-  ctx.font = '40px Arial';
+  ctx.font = '50px Arial';
   ctx.fillStyle = 'white';
   ctx.textAlign = 'center';
   ctx.fillText(`${temp}°C`, size / 2, size / 2);
@@ -77,8 +77,9 @@ function addTemperatureToMarker(cityName, temp) {
   sprite.scale.set(0.6, 0.6, 0.6);
 
   // For cities in the southern hemisphere, set the temperature label underneath the city name.
-  // Adjust the y-offset: use a negative offset for the south, keeping a positive offset for the north.
-  const tempYOffset = lat < 0 ? -0.4 : 0.3;
+  // Adjust the y-offset: use a larger positive offset for northern hemisphere cities.
+  const tempYOffset = lat < 0 ? -0.4 : 0.4; // Increased offset for the northern hemisphere
+
   sprite.position.set(x, y + tempYOffset, z);
 
   globe.add(sprite);
@@ -170,7 +171,7 @@ cities.forEach((city) => {
     transparent: true,
   });
   const sprite = new THREE.Sprite(spriteMaterial);
-  sprite.scale.set(0.5, 0.5, 0.5);
+  sprite.scale.set(0.7, 0.7, 0.7); // Increased from 0.5
 
   // Use a conditional offset: if the city's latitude is below 0, subtract the offset to place the label underneath.
   const labelYOffset = lat < 0 ? -0.2 : 0.2;
@@ -182,7 +183,7 @@ cities.forEach((city) => {
 globe.rotation.y = 0; // Europe centered - no initial rotation needed
 
 function animate() {
-  globe.rotation.y += 0.005;
+  globe.rotation.y += 0.006;
   renderer.render(scene, camera);
 }
 
