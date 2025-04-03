@@ -183,7 +183,7 @@ cities.forEach((city) => {
 globe.rotation.y = 0; // Europe centered - no initial rotation needed
 
 function animate() {
-  globe.rotation.y += 0.005;
+  globe.rotation.y += 0.003;
   renderer.render(scene, camera);
 }
 
